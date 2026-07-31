@@ -20,8 +20,25 @@ import { PreviewPanel } from '../preview_panel';
 import { ApplicationStart, ChromeStart } from '../../../../../src/core/public';
 import { NavigationPublicPluginStart } from '../../../../../src/plugins/navigation/public';
 
-import { ModelDeploymentItem, ModelDeploymentTable } from './model_deployment_table';
+import {
+  ML_MODEL_GROUP_RESOURCE_TYPE,
+  ModelDeploymentItem,
+  ModelDeploymentTable,
+} from './model_deployment_table';
 import { useMonitoring } from './use_monitoring';
+
+/**
+ * Whether resource sharing is available for model groups, via the core
+ * capability registered by security-dashboards-plugin. False when that plugin
+ * is not installed, the feature is disabled, or the ml-model-group type is
+ * not registered — no plugin dependency involved.
+ */
+function isResourceSharingAvailableForModelGroups(application: ApplicationStart): boolean {
+  const caps = (application.capabilities as any)?.resourceSharing;
+  if (!caps?.enabled) return false;
+  const types: string = caps.availableTypes ?? '';
+  return types.split(',').includes(ML_MODEL_GROUP_RESOURCE_TYPE);
+}
 import { ModelStatusFilter } from './model_status_filter';
 import { SearchBar } from './search_bar';
 import { ModelSourceFilter } from './model_source_filter';
@@ -156,6 +173,7 @@ export const Monitoring = (props: MonitoringProps) => {
           onChange={handleTableChange}
           onViewDetail={handleViewDetail}
           onResetSearchClick={onResetSearch}
+          resourceSharingEnabled={isResourceSharingAvailableForModelGroups(application)}
         />
         {preview && (
           <PreviewPanel
