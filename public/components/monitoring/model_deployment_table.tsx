@@ -188,7 +188,7 @@ export const ModelDeploymentTable = ({
               // button (for the model's model group) is mounted here by
               // security-dashboards-plugin when installed and enabled.
               field: 'model_group_id',
-              name: 'Share',
+              name: 'Access',
               width: '5%',
               render: (modelGroupId: string | undefined) =>
                 modelGroupId ? (
