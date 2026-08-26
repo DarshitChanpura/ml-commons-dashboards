@@ -33,7 +33,7 @@ import { useMonitoring } from './use_monitoring';
  * is not installed, the feature is disabled, or the ml-model-group type is
  * not registered — no plugin dependency involved.
  */
-function isResourceSharingAvailableForModelGroups(application: ApplicationStart): boolean {
+export function isResourceSharingAvailableForModelGroups(application: ApplicationStart): boolean {
   const caps = (application.capabilities as any)?.resourceSharing;
   if (!caps?.enabled) return false;
   const types: string = caps.availableTypes ?? '';

@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event';
 import React from 'react';
 
 import { render, screen, waitFor, within } from '../../../../test/test_utils';
-import { Monitoring } from '../index';
+import { Monitoring, isResourceSharingAvailableForModelGroups } from '../index';
 import * as useMonitoringExports from '../use_monitoring';
 import { APIProvider } from '../../../apis/api_provider';
 import { applicationServiceMock, chromeServiceMock } from '../../../../../../src/core/public/mocks';
@@ -396,5 +396,42 @@ describe('<Monitoring />', () => {
     setup({}, true);
 
     expect(screen.queryByLabelText('total number of results')).toBe(null);
+  });
+});
+
+describe('isResourceSharingAvailableForModelGroups', () => {
+  const appWithCaps = (resourceSharing?: Record<string, unknown>) =>
+    ({ capabilities: resourceSharing ? { resourceSharing } : {} }) as any;
+
+  it('returns false when the resourceSharing capability is absent', () => {
+    expect(isResourceSharingAvailableForModelGroups(appWithCaps())).toBe(false);
+  });
+
+  it('returns false when resource sharing is disabled', () => {
+    expect(
+      isResourceSharingAvailableForModelGroups(
+        appWithCaps({ enabled: false, availableTypes: 'ml-model-group' })
+      )
+    ).toBe(false);
+  });
+
+  it('returns false when ml-model-group is not in availableTypes', () => {
+    expect(
+      isResourceSharingAvailableForModelGroups(
+        appWithCaps({ enabled: true, availableTypes: 'workflow,anomaly-detector' })
+      )
+    ).toBe(false);
+  });
+
+  it('returns false when availableTypes is missing', () => {
+    expect(isResourceSharingAvailableForModelGroups(appWithCaps({ enabled: true }))).toBe(false);
+  });
+
+  it('returns true when enabled and ml-model-group is present in availableTypes', () => {
+    expect(
+      isResourceSharingAvailableForModelGroups(
+        appWithCaps({ enabled: true, availableTypes: 'workflow,ml-model-group,forecaster' })
+      )
+    ).toBe(true);
   });
 });
