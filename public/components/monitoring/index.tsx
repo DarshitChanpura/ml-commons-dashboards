@@ -29,10 +29,8 @@ import {
 import { useMonitoring } from './use_monitoring';
 
 /**
- * Resolve the shareable resource types available on the given data source by
- * probing the security plugin's data-source-aware endpoints. Returns an empty
- * list when the security plugin is not installed, resource sharing is
- * disabled on that data source, or the probe fails.
+ * Resource-sharing types available on the given data source (feature flag +
+ * per-type list). Returns [] when disabled or on error.
  */
 export const getResourceSharingAvailableTypes = async (
   resourceDataSourceId?: string
