@@ -406,8 +406,8 @@ describe('<Monitoring />', () => {
 
     const mockResourceSharingResponses = (enabled: boolean, types: string[]) => {
       const get = jest.fn(async (path: string) => {
-        if (path === '/api/v1/auth/dashboardsinfo') {
-          return { resource_sharing_enabled: enabled };
+        if (path === '/api/v1/auth/resource_sharing_enabled') {
+          return { enabled };
         }
         return { types: types.map((type) => ({ type })) };
       });
@@ -452,8 +452,8 @@ describe('getResourceSharingAvailableTypes', () => {
 
   it('returns an empty list when resource sharing is disabled on the data source', async () => {
     mockHttpGet(async (path) => {
-      if (path === '/api/v1/auth/dashboardsinfo') {
-        return { resource_sharing_enabled: false };
+      if (path === '/api/v1/auth/resource_sharing_enabled') {
+        return { enabled: false };
       }
       return { types: [{ type: 'ml-model-group' }] };
     });
@@ -462,8 +462,8 @@ describe('getResourceSharingAvailableTypes', () => {
 
   it('returns the registered types when resource sharing is enabled', async () => {
     mockHttpGet(async (path) => {
-      if (path === '/api/v1/auth/dashboardsinfo') {
-        return { resource_sharing_enabled: true };
+      if (path === '/api/v1/auth/resource_sharing_enabled') {
+        return { enabled: true };
       }
       return { types: [{ type: 'ml-model-group' }, { type: 'workflow' }, {}] };
     });
@@ -472,8 +472,8 @@ describe('getResourceSharingAvailableTypes', () => {
 
   it('supports a bare array response from the types endpoint', async () => {
     mockHttpGet(async (path) => {
-      if (path === '/api/v1/auth/dashboardsinfo') {
-        return { resource_sharing_enabled: true };
+      if (path === '/api/v1/auth/resource_sharing_enabled') {
+        return { enabled: true };
       }
       return [{ type: 'ml-model-group' }];
     });
@@ -482,13 +482,13 @@ describe('getResourceSharingAvailableTypes', () => {
 
   it('passes the data source id as a query parameter to both endpoints', async () => {
     const get = mockHttpGet(async (path) => {
-      if (path === '/api/v1/auth/dashboardsinfo') {
-        return { resource_sharing_enabled: true };
+      if (path === '/api/v1/auth/resource_sharing_enabled') {
+        return { enabled: true };
       }
       return { types: [{ type: 'ml-model-group' }] };
     });
     await getResourceSharingAvailableTypes('data-source-1');
-    expect(get).toHaveBeenCalledWith('/api/v1/auth/dashboardsinfo', {
+    expect(get).toHaveBeenCalledWith('/api/v1/auth/resource_sharing_enabled', {
       query: { dataSourceId: 'data-source-1' },
     });
     expect(get).toHaveBeenCalledWith('/api/resource/types', {
@@ -497,9 +497,9 @@ describe('getResourceSharingAvailableTypes', () => {
   });
 
   it('omits the data source id from the query when not provided', async () => {
-    const get = mockHttpGet(async () => ({ resource_sharing_enabled: false }));
+    const get = mockHttpGet(async () => ({ enabled: false }));
     await getResourceSharingAvailableTypes();
-    expect(get).toHaveBeenCalledWith('/api/v1/auth/dashboardsinfo', { query: {} });
+    expect(get).toHaveBeenCalledWith('/api/v1/auth/resource_sharing_enabled', { query: {} });
   });
 
   it('returns an empty list when the probe fails', async () => {
